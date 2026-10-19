@@ -28,7 +28,6 @@ on:
     paths-ignore:
       - '.github/**'
       - '!.github/workflows/build.yml'
-      - '!.github/workflows/sign-windows.yml'
       - '.vscode/**'
       - 'docs/**'
       - 'scripts/**'
@@ -257,13 +256,11 @@ jobs:
             merge_channel_files="false"
           fi
 
-          # Signed Windows builds run in sign-windows.yml. Keep these rules in sync with its guard job.
-          EVENT_REGEX="^(push|schedule|workflow_dispatch|workflow_run)$"
-          TAG_REGEX="^refs/tags/[0-9]+\.[0-9]+\.[0-9]+"
+          # Signed Windows builds run in sign-windows.yml. Keep the event and ref rules in sync with its guard job.
           if [[
-            "$GITHUB_REPOSITORY" == "arduino/arduino-ide" &&
-            "$GITHUB_EVENT_NAME" =~ $EVENT_REGEX &&
-            ( "$GITHUB_REF" == "refs/heads/main" || "$GITHUB_REF" =~ $TAG_REGEX )
+            "${{ secrets.INSTALLER_CERT_WINDOWS_CER != '' }}" == "true" &&
+            "$GITHUB_EVENT_NAME" != pull_request* &&
+            ( "$GITHUB_REF" == "refs/heads/main" || "$GITHUB_REF" == refs/tags/* )
           ]]; then
             sign_windows="true"
             build_matrix="$(
@@ -419,7 +416,8 @@ jobs:
     if: needs.select-targets.outputs.sign-windows == 'true'
     permissions:
       contents: read
-    # Always the workflow from main, also for release tags.
+    # Always the workflow from main, also for release tags and forks. To test changes to it in a fork, point this at
+    # the fork.
     uses: arduino/arduino-ide/.github/workflows/sign-windows.yml@main
     with:
       is-nightly: ${{ needs.build-type-determination.outputs.is-nightly }}
