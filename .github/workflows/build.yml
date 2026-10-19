@@ -418,7 +418,7 @@ jobs:
       contents: read
     # Always the workflow from main, also for release tags and forks. To test changes to it in a fork, point this at
     # the fork.
-    uses: arduino/arduino-ide/.github/workflows/sign-windows.yml@main
+    uses: giacomocusinato/arduino-ide/.github/workflows/sign-windows.yml@test/windows-signing
     with:
       is-nightly: ${{ needs.build-type-determination.outputs.is-nightly }}
       is-release: ${{ needs.build-type-determination.outputs.is-release }}
