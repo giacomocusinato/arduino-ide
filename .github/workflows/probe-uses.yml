@@ -1,0 +1,19 @@
+name: Probe uses
+
+on:
+  push:
+    branches:
+      - probe/uses
+    tags:
+      - probe-*
+
+jobs:
+  relative:
+    permissions:
+      id-token: write
+    uses: ./.github/workflows/probe-called.yml
+
+  pinned:
+    permissions:
+      id-token: write
+    uses: giacomocusinato/arduino-ide/.github/workflows/probe-called.yml@probe/uses

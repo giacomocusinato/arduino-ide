@@ -1,0 +1,38 @@
+name: Probe called
+
+on:
+  workflow_call:
+
+jobs:
+  show:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Show refs
+        env:
+          REF: ${{ github.ref }}
+          WORKFLOW_REF: ${{ github.workflow_ref }}
+          JOB_WORKFLOW_REF: ${{ job.workflow_ref }}
+          JOB_WORKFLOW_SHA: ${{ job.workflow_sha }}
+        run: |
+          echo "github.ref=$REF"
+          echo "github.workflow_ref=$WORKFLOW_REF"
+          echo "job.workflow_ref=$JOB_WORKFLOW_REF"
+          echo "job.workflow_sha=$JOB_WORKFLOW_SHA"
+          # Only the claims are printed, never the token.
+          claims="$(
+            curl -sSf -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" |
+            python3 -c 'import base64, json, sys
+          payload = json.load(sys.stdin)["value"].split(".")[1]
+          claims = json.loads(base64.urlsafe_b64decode(payload + "=" * (-len(payload) % 4)))
+          for key in ("ref", "workflow_ref", "job_workflow_ref"):
+              print(f"oidc.{key}={claims.get(key)}")'
+          )"
+          echo "$claims"
+          {
+            echo "### \`job.workflow_ref\`: \`$JOB_WORKFLOW_REF\`"
+            echo '```'
+            echo "$claims"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

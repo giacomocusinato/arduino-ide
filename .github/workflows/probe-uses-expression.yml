@@ -1,0 +1,10 @@
+name: Probe uses expression
+
+on:
+  push:
+    branches:
+      - probe/uses
+
+jobs:
+  composed:
+    uses: ${{ github.repository }}/.github/workflows/probe-called.yml@probe/uses
