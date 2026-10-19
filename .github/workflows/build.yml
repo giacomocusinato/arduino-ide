@@ -419,7 +419,7 @@ jobs:
     if: needs.select-targets.outputs.sign-windows == 'main'
     permissions: &build-windows-signed-permissions
       contents: read
-    uses: arduino/arduino-ide/.github/workflows/sign-windows.yml@main
+    uses: giacomocusinato/arduino-ide/.github/workflows/sign-windows.yml@test/windows-signing-final
     with: &build-windows-signed-with
       is-nightly: ${{ needs.build-type-determination.outputs.is-nightly }}
       is-release: ${{ needs.build-type-determination.outputs.is-release }}
